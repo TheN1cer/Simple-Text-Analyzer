@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from wordcloud import WordCloud
 # 讓使用者輸入檔案路徑
 file_path = input("請輸入檔案名稱: ")
 
@@ -37,27 +38,41 @@ for word in filtered_words:
 # 5. 排序並輸出結果
 result = sorted(word_counts.items(), key=lambda x: x[1], reverse=True)
 
-# 6. 設定門檻並輸出 (使用 if 過濾)
-threshold = 2
-print(f"--- 關鍵字統計 (出現 {threshold} 次以上) ---")
+# 6. 設定門檻並過濾資料
+threshold = 3  # 只顯示出現次數大於或等於 2 的關鍵字
+filtered_result = [item for item in result if item[1] >= threshold]
+print (f"出現次數大於或等於 {threshold} 的關鍵字:")
+for word, count in filtered_result:
+    print(f"{word:<12}: {count}次")
 
-for word, count in result:
-    if count >= threshold:
-        print(f"關鍵字: {word:<12} | 出現次數: {count}")
-    else:
-        # 因為 result 已經是從大到小排序，若遇到小於門檻的，後面的就都不用檢查了
-        break
+# 檢查是否還有資料
+if len(filtered_result) > 0:
+    # 拆解成繪圖用的 lists
+    words, values = map(list, zip(*filtered_result))
+    
+    # --- 繪製長條圖 ---
+    plt.figure(figsize=(10, 6))
+    plt.bar(words, values, color='skyblue')
+    plt.title(f"Top Keywords (Frequency >= {threshold})")
+    plt.xlabel("Words")
+    plt.ylabel("Frequency")
+    plt.xticks(rotation=45)
+    plt.tight_layout() # 自動調整邊界，避免標籤被切掉
+    plt.savefig("bar_chart.png")
+    print("長條圖已儲存為 bar_chart.png")
 
-# 7. 繪製長條圖 (使用 Matplotlib)
-words, values = map(list, zip(*result))
-plt.bar(words, values)
+    # --- 繪製文字雲 ---
+    # 使用 generate_from_frequencies 直接接收統計字典
+    wc = WordCloud(width=800, height=400, background_color='white', colormap='viridis')
+    wc.generate_from_frequencies(word_counts)
+    
+    plt.figure(figsize=(10, 5))
+    plt.imshow(wc, interpolation='bilinear')
+    plt.axis('off')
+    plt.savefig("wordcloud.png")
+    print("文字雲已儲存為 wordcloud.png")
+    
+else:
+    print("沒有找到達到門檻的關鍵字，無法繪圖。")
 
-# 加入標題與標籤 (這對期末報告非常重要)
-plt.title("Keyword Frequency Analysis")
-plt.xlabel("Words")
-plt.ylabel("Frequency")
 
-# 顯示或儲存圖表
-plt.show()
-
-input("按下 Enter 鍵以結束程式...")
