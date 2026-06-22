@@ -18,7 +18,7 @@ with st.sidebar:
     
     st.divider()
     
-    # 【新功能】點子二：自訂停用詞輸入框
+    # 自訂停用詞輸入框
     st.subheader("🧹 文字過濾")
     custom_stopwords = st.text_input(
         "輸入要排除的字 (以英文逗號隔開):", 
@@ -48,13 +48,13 @@ if uploaded_file is not None:
                 
                 st.success("🎉 分析順利完成！")
                 
-                # --- 【新功能】點子一：文章數據體檢儀表板 ---
+                # --- 文章數據儀表板 ---
                 if analyzer.filtered_words:
                     total_words = len(analyzer.filtered_words)
                     unique_words = len(analyzer.word_counts)
                     richness = (unique_words / total_words) * 100
                     
-                    # 建立三個精美的並排指標卡
+                    # 建立三個並排指標卡
                     m1, m2, m3 = st.columns(3)
                     m1.metric("總字數", f"{total_words:,} 字")
                     m2.metric("不重複單字數", f"{unique_words:,} 個")
@@ -65,8 +65,8 @@ if uploaded_file is not None:
                 # --- 數據分頁展示區 ---
                 tab1, tab2 = st.tabs(["📊 分析圖表", "📋 數據報表"])
                 
+                # 生成報表分頁1 展示長條圖與文字雲
                 with tab1:
-                    # 分開呈現兩張大圖，上下排列，寬度填滿
                     st.markdown("### 📊 關鍵字頻率長條圖")
                     if os.path.exists("bar_chart.png"):
                         st.image("bar_chart.png", use_container_width=True)
@@ -77,6 +77,7 @@ if uploaded_file is not None:
                     if os.path.exists("wordcloud.png"):
                         st.image("wordcloud.png", use_container_width=True)
                 
+                # 生成報表分頁2 展示 CSV 數據表，並提供下載功能
                 with tab2:
                     st.markdown("### 📋 字頻統計數據表")
                     if os.path.exists("keyword_report.csv"):
@@ -92,6 +93,6 @@ if uploaded_file is not None:
                                 mime="text/csv",
                             )
 
-            # 任務完成，移除暫存檔
+            # 分析完成，移除暫存檔
             if os.path.exists(temp_file_path):
                 os.remove(temp_file_path)
